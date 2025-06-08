@@ -56,7 +56,7 @@ jobs:
         run: ls -R backend/            
 
       - name: Build SAM Application
-        run: cd backend && sam build
+        run: cd backend && sam build --debug
 
       - name: Deploy SAM Application
         run: cd backend && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name FeedbackAppStack --capabilities CAPABILITY_IAM
