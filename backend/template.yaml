@@ -25,7 +25,7 @@ Resources:
     Properties:
       Handler: postFeedback.handler
       Runtime: python3.9 # Explicitly setting runtime for this function
-      CodeUri: lambda-functions/submitFeedbackFunction/ # Path to your Python Lambda code
+      CodeUri: lambda-functions/submitfeedbackfunction/ # Path to your Python Lambda code
       Policies:
         - DynamoDBCrudPolicy: # Policy to allow access to DynamoDB
             TableName: !Ref FeedbackTable
@@ -42,7 +42,7 @@ Resources:
     Properties:
       Handler: getFeedback.handler
       Runtime: nodejs18.x # Explicitly setting runtime for this function
-      CodeUri: lambda-functions/getfeedbackFunction/ # Path to your Node.js Lambda code
+      CodeUri: lambda-functions/getfeedbackfunction/ # Path to your Node.js Lambda code
       Policies:
         - DynamoDBReadPolicy: # Policy to allow read access to DynamoDB
             TableName: !Ref FeedbackTable
