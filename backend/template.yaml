@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A serverless application for collecting and retrieving user feedback.
+
+Globals:
+  Function:
+    Timeout: 10 # Default timeout for all functions
+    MemorySize: 128 # Default memory for all functions
+    Runtime: nodejs18.x # Default runtime, overridden for Python function
+
+Resources:
+  # DynamoDB Table for Feedback
+  FeedbackTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      Tags:
+        Project: FeedbackApp
+
+  # Lambda Function for Submitting Feedback (Python)
+  SubmitFeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: postFeedback.lambda_handler
+      Runtime: python3.9 # Explicitly setting runtime for this function
+      CodeUri: lambda-functions/submitFeedbackFunction/ # Path to your Python Lambda code
+      Policies:
+        - DynamoDBCrudPolicy: # Policy to allow access to DynamoDB
+            TableName: !Ref FeedbackTable
+      Events:
+        SubmitApi:
+          Type: Api
+          Properties:
+            Path: /feedback
+            Method: POST
+
+  # Lambda Function for Getting Feedback (Node.js)
+  GetFeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: getFeedback.handler
+      Runtime: nodejs18.x # Explicitly setting runtime for this function
+      CodeUri: lambda-functions/getFeedbackFunction/ # Path to your Node.js Lambda code
+      Policies:
+        - DynamoDBReadPolicy: # Policy to allow read access to DynamoDB
+            TableName: !Ref FeedbackTable
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /feedback
+            Method: GET
+
+Outputs:
+  # Output the API Gateway endpoint for your frontend
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint for the feedback application"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/feedback"
