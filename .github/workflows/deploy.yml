@@ -1,0 +1,59 @@
+name: Deploy Serverless Feedback App
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }} # Should be us-east-2
+
+      - name: Deploy Frontend to S3
+        run: aws s3 sync frontend/ s3://feedback-collector-frontend --delete
+
+      - name: Invalidate CloudFront Cache
+        run: aws cloudfront create-invalidation --distribution-id E2GSYCHJZ738M3 --paths "/*"
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: deploy-frontend # Ensure frontend deployment finishes first
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }} # Should be us-east-2
+
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' # Specify Python version needed for SAM dependencies
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Specify Node.js version needed for SAM dependencies and getFeedbackFunction
+
+      - name: Build SAM Application
+        run: cd backend && sam build
+
+      - name: Deploy SAM Application
+        run: cd backend && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name FeedbackAppStack --capabilities CAPABILITY_IAM
