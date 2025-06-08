@@ -23,9 +23,9 @@ Resources:
   SubmitFeedbackFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: postFeedback.lambda_handler
+      Handler: postFeedback.handler
       Runtime: python3.9 # Explicitly setting runtime for this function
-      CodeUri: lambda-functions/submitFeedbackFunction/ # Path to your Python Lambda code
+      CodeUri: lambda-functions/submitFeedbackFunction # Path to your Python Lambda code
       Policies:
         - DynamoDBCrudPolicy: # Policy to allow access to DynamoDB
             TableName: !Ref FeedbackTable
