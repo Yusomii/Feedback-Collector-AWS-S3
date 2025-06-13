@@ -1,0 +1,19 @@
+# AWS SAM build output
+.aws-sam/
+sam-output.yaml # Or whatever your SAM build output template is named if different
+
+# Node modules (for frontend and any Node.js Lambdas if local node_modules exist)
+node_modules/
+
+# Python virtual environments and build artifacts
+.venv/
+venv/
+__pycache__/
+*.pyc
+.Python/
+
+# Environment variables or local config files (IMPORTANT for secrets!)
+.env
+.env.*
+config.js # If you have any local config files that might contain secrets
+.vscode/ # If you have VS Code settings you don't want to share
