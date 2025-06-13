@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A serverless application for collecting and retrieving user feedback.
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+    Runtime: nodejs18.x
+Resources:
+  FeedbackTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      Tags:
+        Project: FeedbackApp
+  ServerlessRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+        AllowMethods: '''GET,POST,OPTIONS'''
+        AllowOrigin: '''*'''
+  SubmitFeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: postFeedback.handler
+      Runtime: python3.9
+      CodeUri: SubmitFeedbackFunction
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: FeedbackTable
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: FeedbackTable
+      Events:
+        SubmitApi:
+          Type: Api
+          Properties:
+            Path: /feedback
+            Method: POST
+    Metadata:
+      SamResourceId: SubmitFeedbackFunction
+  GetFeedbackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: getFeedback.handler
+      Runtime: nodejs18.x
+      CodeUri: GetFeedbackFunction
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: FeedbackTable
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: FeedbackTable
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /feedback
+            Method: GET
+    Metadata:
+      SamResourceId: GetFeedbackFunction
+Outputs:
+  ApiGatewayEndpoint:
+    Description: API Gateway endpoint for the feedback application
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/feedback

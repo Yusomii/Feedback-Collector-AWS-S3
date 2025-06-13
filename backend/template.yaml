@@ -19,6 +19,19 @@ Resources:
       Tags:
         Project: FeedbackApp
 
+  # Define the API Gateway explicitly to add CORS
+  # THIS IS THE NEW/MODIFIED SECTION FOR CORS
+  ServerlessRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowMethods: "'GET,POST,OPTIONS'"
+        # IMPORTANT: For testing, '*' works. For production, replace '*' with your CloudFront URL:
+        # e.g., 'https://d13e8hqkc3m5e0.cloudfront.net'
+        AllowOrigin: "'*'"
+
   # Lambda Function for Submitting Feedback (Python)
   SubmitFeedbackFunction:
     Type: AWS::Serverless::Function
@@ -29,6 +42,9 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy: # Policy to allow access to DynamoDB
             TableName: !Ref FeedbackTable
+      Environment: # <-- CORRECTED: Changed 'Enviroment' to 'Environment'
+        Variables:
+          TABLE_NAME: !Ref FeedbackTable
       Events:
         SubmitApi:
           Type: Api
@@ -46,6 +62,9 @@ Resources:
       Policies:
         - DynamoDBReadPolicy: # Policy to allow read access to DynamoDB
             TableName: !Ref FeedbackTable
+      Environment: # <-- CORRECTED: Changed 'Enviroment' to 'Environment'
+        Variables:
+          TABLE_NAME: !Ref FeedbackTable
       Events:
         GetApi:
           Type: Api

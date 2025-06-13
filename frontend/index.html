@@ -97,7 +97,7 @@
 
       try {
         // CORRECTED: API Gateway endpoint to us-east-2 (where your Lambdas are)
-        const apiEndpoint = "https://s980jhhwtf.execute-api.us-east-2.amazonaws.com/v1/feedback"; 
+        const apiEndpoint = "https://71x6cdji04.execute-api.us-east-2.amazonaws.com/Prod/feedback"; 
 
         const response = await fetch(apiEndpoint, {
           method: "POST",
@@ -121,7 +121,7 @@
       } catch (err) {
         message.textContent = "Error submitting feedback. Check console for details.";
         message.style.color = "red";
-        console.error("Fetch error:", err);
+        console.error("Fetch error:", err)  ;
       }
     });
   </script>
@@ -133,7 +133,7 @@
   
       try {
         // CORRECTED: API Gateway endpoint to us-east-2 (where your Lambdas are)
-        const apiEndpoint = "https://s980jhhwtf.execute-api.us-east-2.amazonaws.com/v1/feedback";
+        const apiEndpoint = "https://71x6cdji04.execute-api.us-east-2.amazonaws.com/Prod/feedback";
 
         const response = await fetch(apiEndpoint); 
         const data = await response.json();
