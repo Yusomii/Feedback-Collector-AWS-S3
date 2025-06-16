@@ -17,3 +17,6 @@ __pycache__/
 .env.*
 config.js # If you have any local config files that might contain secrets
 .vscode/ # If you have VS Code settings you don't want to share
+
+#ETC
+repomix-output.xml
